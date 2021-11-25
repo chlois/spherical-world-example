@@ -9,6 +9,5 @@
 
 # tmp
 /Assets/Scenes
-/Assets/Scripts/FauxGravityBody.cs
 /Assets/Scripts/SphereCharacter.cs
 /Assets/Scripts/SpherePlayerController.cs
