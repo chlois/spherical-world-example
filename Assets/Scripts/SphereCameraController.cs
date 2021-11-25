@@ -12,7 +12,7 @@ public class SphereCameraController : MonoBehaviour {
     
     private Vector3 cameraPosition;
     
-    void Update () {
+    void Update() {
         HandleDrag();        
         HandleScroll();
     }
@@ -26,7 +26,7 @@ public class SphereCameraController : MonoBehaviour {
             Vector3 moveDir = Input.mousePosition - cameraPosition;
             Quaternion rotationX = Quaternion.AngleAxis(moveDir.x * dragSensitivity, transform.up);
             Quaternion rotationY = Quaternion.AngleAxis(moveDir.y * dragSensitivity, -transform.right);
-            transform.localRotation = rotationX * rotationY * transform.localRotation;
+            transform.rotation = rotationX * rotationY * transform.rotation;
             cameraPosition = Input.mousePosition;
         }
     }
