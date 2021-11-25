@@ -1,0 +1,15 @@
+/Library
+/Logs
+/Packages
+/ProjectSettings
+/Temp
+/UserSettings
+/Assets/Standard Assets
+*.meta
+
+# tmp
+/Assets/Scenes
+/Assets/Scripts/FauxGravityAttractor.cs
+/Assets/Scripts/FauxGravityBody.cs
+/Assets/Scripts/SphereCharacter.cs
+/Assets/Scripts/SpherePlayerController.cs
