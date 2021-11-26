@@ -53,6 +53,9 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 		}
 
 		void Update() {
+			if (enableRagdoll) {
+				m_SphereObject.attractor.AttractRagDoll(this.gameObject);
+			}
 			if (enableRagdoll != lastRagdollStatus) {
 				lastRagdollStatus = enableRagdoll;
 				if (enableRagdoll) {
@@ -67,6 +70,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 		void InitRagdoll() {
 			Rigidbody[] Rigidbodys = GetComponentsInChildren<Rigidbody>();
 			for (int i = 0; i < Rigidbodys.Length; i++) {
+				Rigidbodys[i].useGravity = false;
 				if (Rigidbodys[i] == GetComponent<Rigidbody>()) {
 					continue;
 				}
