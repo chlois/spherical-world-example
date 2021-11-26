@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -9,7 +11,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 	public class SphereCharacter : MonoBehaviour {
 		[SerializeField] float m_MovingTurnSpeed = 360;
 		[SerializeField] float m_StationaryTurnSpeed = 180;
-		[SerializeField] float m_JumpPower = 10f;
+		[SerializeField] float m_JumpPower = 8.0f;
 		[SerializeField] float m_RunCycleLegOffset = 0.2f; //specific to the character in sample assets, will need to be modified to work with others
 		[SerializeField] float m_MoveSpeedMultiplier = 1f;
 		[SerializeField] float m_AnimSpeedMultiplier = 1f;
@@ -29,6 +31,12 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 		CapsuleCollider m_Capsule;
 		bool m_Crouching;
 
+		// Ragdoll switch related
+		public bool enableRagdoll = false;
+		List<Rigidbody> RagdollRigidbodys = new List<Rigidbody>();
+		List<Collider> RagdollColliders = new List<Collider>();
+		bool lastRagdollStatus = false;
+
 		void Start() {
 			m_Animator = GetComponent<Animator>();
 			m_Rigidbody = GetComponent<Rigidbody>();
@@ -40,6 +48,57 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 			m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
 			m_OrigGroundCheckDistance = m_GroundCheckDistance;
             m_Rigidbody.useGravity = false;
+
+			InitRagdoll();
+		}
+
+		void Update() {
+			if (enableRagdoll != lastRagdollStatus) {
+				lastRagdollStatus = enableRagdoll;
+				if (enableRagdoll) {
+					EnableRagdoll();
+				}
+				else {
+					DisableRagdoll();
+				}
+			}
+		}
+
+		void InitRagdoll() {
+			Rigidbody[] Rigidbodys = GetComponentsInChildren<Rigidbody>();
+			for (int i = 0; i < Rigidbodys.Length; i++) {
+				if (Rigidbodys[i] == GetComponent<Rigidbody>()) {
+					continue;
+				}
+				
+				RagdollRigidbodys.Add(Rigidbodys[i]);
+				Rigidbodys[i].isKinematic = true;
+				Collider RagdollCollider = Rigidbodys[i].gameObject.GetComponent<Collider>();
+				RagdollCollider.isTrigger = true;
+				RagdollColliders.Add(RagdollCollider);
+			}
+		}
+
+		void EnableRagdoll() {
+			for (int i = 0; i < RagdollRigidbodys.Count; i++) {
+				RagdollRigidbodys[i].isKinematic = false;
+				RagdollColliders[i].isTrigger = false;
+			}
+			StartCoroutine(SetAnimatorEnable(false));
+		}
+		
+		void DisableRagdoll() {
+			for (int i = 0; i < RagdollRigidbodys.Count; i++) {
+				RagdollRigidbodys[i].isKinematic = true;
+				RagdollColliders[i].isTrigger = true;
+			}
+			GetComponent<Collider>().enabled = true;
+			StartCoroutine(SetAnimatorEnable(true));
+		}
+		
+		IEnumerator SetAnimatorEnable(bool Enable) {
+			yield return new WaitForEndOfFrame();
+			m_Animator.enabled = Enable;
 		}
 
 		public void Move(Vector3 move, bool crouch, bool jump) {
