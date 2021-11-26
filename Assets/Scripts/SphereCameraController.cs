@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
 
-// Spin and view the sphere with right drag. Zoom in or out with wheel.
 
+// Spin and view the sphere with right drag. Zoom in or out with wheel.
 public class SphereCameraController : MonoBehaviour {
     public float dragSensitivity = 1.0f; 
     public float scrollSensitivity = 1.0f; 

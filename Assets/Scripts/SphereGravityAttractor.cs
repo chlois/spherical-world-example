@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
+
 public class SphereGravityAttractor : MonoBehaviour {
     public float gravity = -10;
     

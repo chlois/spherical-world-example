@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class SphereGravityObject : MonoBehaviour {
     public SphereGravityAttractor attractor;
     
