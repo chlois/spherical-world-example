@@ -9,5 +9,5 @@
 
 # tmp
 /Assets/Scenes
-/Assets/Scripts/SphereCharacter.cs
 /Assets/Scripts/SpherePlayerController.cs
+/Assets/avatar.fbx

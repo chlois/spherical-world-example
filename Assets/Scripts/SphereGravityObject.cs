@@ -14,4 +14,12 @@ public class SphereGravityObject : MonoBehaviour {
         // get correct gravity force and up direction every frame
         attractor.Attract(transform);
     }
+
+    public Vector3 GetGravityUp() {
+        return attractor.GetUp(transform);
+    }
+
+    public Vector3 GetGravityForce() {
+        return attractor.GetForce(transform);
+    }
 }
