@@ -12,6 +12,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 		[SerializeField] float m_MovingTurnSpeed = 360;
 		[SerializeField] float m_StationaryTurnSpeed = 180;
 		[SerializeField] float m_JumpPower = 8.0f;
+		[Range(1f, 4f)][SerializeField] float m_GravityMultiplier = 2f;
 		[SerializeField] float m_RunCycleLegOffset = 0.2f; //specific to the character in sample assets, will need to be modified to work with others
 		[SerializeField] float m_MoveSpeedMultiplier = 1f;
 		[SerializeField] float m_AnimSpeedMultiplier = 1f;
@@ -194,6 +195,10 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 		}
 
 		void HandleAirborneMovement() {
+			// apply extra gravity from multiplier:
+			var gravityForce = m_SphereObject.GetGravityForce();
+			Vector3 extraGravityForce = gravityForce * (m_GravityMultiplier - 1);
+			m_Rigidbody.AddForce(extraGravityForce);
 			float velocityUp = Vector3.Dot(m_Rigidbody.velocity, m_SphereObject.GetGravityUp());
 			m_GroundCheckDistance = velocityUp < 0 ? m_OrigGroundCheckDistance : 0.01f;
 		}
@@ -228,13 +233,14 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 		void CheckGroundStatus() {
 			RaycastHit hitInfo;
 			Vector3 gravityUp = m_SphereObject.GetGravityUp();
+			Vector3 bottomPosition = transform.position - transform.up * (m_CapsuleHeight / 2.0f) + m_CapsuleCenter;
 #if UNITY_EDITOR
 			// helper to visualise the ground check ray in the scene view
-			Debug.DrawLine(transform.position + (gravityUp * 0.1f), transform.position + (gravityUp * 0.1f) + (-gravityUp * m_GroundCheckDistance));
+			Debug.DrawLine(bottomPosition + (gravityUp * 0.1f), bottomPosition + (gravityUp * 0.1f) + (-gravityUp * m_GroundCheckDistance));
 #endif
 			// 0.1f is a small offset to start the ray from inside the character
-			// it is also good to note that the transform position in the sample assets is at the base of the character
-			if (Physics.Raycast(transform.position + (gravityUp * 0.1f), -gravityUp, out hitInfo, m_GroundCheckDistance)) {
+			// it is also good to note that the transform position in the sample assets is at the base of the character			
+			if (Physics.Raycast(bottomPosition + (gravityUp * 0.1f), -gravityUp, out hitInfo, m_GroundCheckDistance)) {
 				m_GroundNormal = hitInfo.normal;
 				m_IsGrounded = true;
 				m_Animator.applyRootMotion = true;
