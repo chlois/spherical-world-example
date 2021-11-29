@@ -1,10 +1,13 @@
+using UnityEditor;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityStandardAssets.CrossPlatformInput;
 
 
 namespace UnityStandardAssets.Characters.ThirdPerson {
     [RequireComponent(typeof (SphereCharacter))]
+    [RequireComponent(typeof (Pathfinder))]
     public class SpherePlayerController : MonoBehaviour {
         public float moveSpeed = 15;
         private Vector3 moveDir;
@@ -12,6 +15,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
         private Transform m_Cam;     
         private Vector3 m_Move;
         private bool m_Jump;
+        private Pathfinder pathfinder;
         
         private void Start() {
             // get the transform of the main camera
@@ -23,6 +27,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
                     "Error: no main camera found. Third person character needs a Camera tagged \"MainCamera\", for camera-relative controls.", gameObject);
             }
             m_Character = GetComponent<SphereCharacter>();
+            pathfinder = GetComponent<Pathfinder>();
         }
         
         void Update() {
@@ -30,8 +35,17 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
                 m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
             }
 
+            List<Vector3> testPath = null;
             if (Input.GetMouseButtonDown(0)) {
                 var myMousePosition = Input.mousePosition;
+                testPath = pathfinder.FindPath(myMousePosition);
+            }
+            if (testPath != null) {
+                Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
+                Handles.color = Color.black;
+                for (int i = 0; i < testPath.Count; i++) {
+                    Handles.SphereHandleCap(0, testPath[i], Quaternion.identity, 2f, EventType.Repaint);
+                }
             }
         }
         

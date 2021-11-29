@@ -233,14 +233,14 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 		void CheckGroundStatus() {
 			RaycastHit hitInfo;
 			Vector3 gravityUp = m_SphereObject.GetGravityUp();
-			Vector3 bottomPosition = transform.position - transform.up * (m_CapsuleHeight / 2.0f) + m_CapsuleCenter;
+			//Vector3 bottomPosition = transform.position - transform.up * (m_CapsuleHeight * transform.localScale.y / 2.0f) + m_CapsuleCenter;
 #if UNITY_EDITOR
 			// helper to visualise the ground check ray in the scene view
-			Debug.DrawLine(bottomPosition + (gravityUp * 0.1f), bottomPosition + (gravityUp * 0.1f) + (-gravityUp * m_GroundCheckDistance));
+			Debug.DrawLine(transform.position + (gravityUp * 0.1f), transform.position + (gravityUp * 0.1f) + (-gravityUp * m_GroundCheckDistance));
 #endif
 			// 0.1f is a small offset to start the ray from inside the character
 			// it is also good to note that the transform position in the sample assets is at the base of the character			
-			if (Physics.Raycast(bottomPosition + (gravityUp * 0.1f), -gravityUp, out hitInfo, m_GroundCheckDistance)) {
+			if (Physics.Raycast(transform.position + (gravityUp * 0.1f), -gravityUp, out hitInfo, m_GroundCheckDistance)) {
 				m_GroundNormal = hitInfo.normal;
 				m_IsGrounded = true;
 				m_Animator.applyRootMotion = true;
