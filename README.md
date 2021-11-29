@@ -5,4 +5,5 @@ It includes scripts for:
 2. spherical gravity of the planet,
 3. spherical gravity of the objects on the planet, 
 4. spherical third person character, 
-5. third person controller for spherical characters.
+5. third person controller for spherical characters,
+6. path finder on sphere.
