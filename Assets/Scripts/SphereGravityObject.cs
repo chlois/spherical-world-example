@@ -11,7 +11,7 @@ public class SphereGravityObject : MonoBehaviour {
         GetComponent<Rigidbody>().useGravity = false;
     }
 
-    void Update() {
+    void FixedUpdate() {
         // get correct gravity force and up direction every frame
         attractor.Attract(transform);
     }

@@ -8,8 +8,6 @@
 *.meta
 
 # tmp
-/Assets/Scenes
-/Assets/avatar.fbx
 *.jpg
-*.mat
+/Assets/Scripts/Tmp.cs
 

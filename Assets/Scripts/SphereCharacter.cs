@@ -38,6 +38,11 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 		List<Collider> RagdollColliders = new List<Collider>();
 		bool lastRagdollStatus = false;
 
+		// Path finding related
+		public List<Vector3> path = null;
+		private Pathfinder pathfinder;
+		private int pathIndex = 1;
+
 		void Start() {
 			m_Animator = GetComponent<Animator>();
 			m_Rigidbody = GetComponent<Rigidbody>();
@@ -49,6 +54,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 			m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
 			m_OrigGroundCheckDistance = m_GroundCheckDistance;
             m_Rigidbody.useGravity = false;
+
+			pathfinder = GetComponent<Pathfinder>();
 
 			InitRagdoll();
 		}
@@ -66,6 +73,9 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 					DisableRagdoll();
 				}
 			}
+
+			// move along path
+			MoveAlongPath();
 		}
 
 		void InitRagdoll() {
@@ -127,6 +137,37 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 
 			// send input and other state parameters to the animator
 			UpdateAnimator(move);
+		}
+
+		public void SetTarget(Vector3 target) {
+			path = pathfinder.FindPath(target);
+		}
+
+		public void ClearTarget() {
+			path = null;
+		}
+
+		void MoveAlongPath() {
+			if (path == null || path.Count == 0) 
+				return;
+			for (int i = pathIndex; i < path.Count; i++) {
+				if (Vector3.Dot(path[i-1]-path[i],transform.position-path[i])<=0.01f) {
+					pathIndex = i+1;
+					break;
+				}
+			}
+			if (pathIndex >= path.Count) {
+				path = null;
+				pathIndex = 1;
+				return;
+			}
+			Vector3 gravityUp = m_SphereObject.GetGravityUp();
+			Vector3 m_Forward = Vector3.ProjectOnPlane(transform.forward, gravityUp).normalized;
+			Vector3 m_Right = Vector3.ProjectOnPlane(transform.right, gravityUp).normalized;
+			Vector3 moveDir = path[pathIndex] - transform.position;
+			float localV = Vector3.Dot(moveDir, m_Forward);
+			float localH = Vector3.Dot(moveDir, m_Right);
+			Move(new Vector3(localH, 0, localV), false, false);
 		}
 
 		void ScaleCapsuleForCrouching(bool crouch) {
@@ -198,7 +239,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 			// apply extra gravity from multiplier:
 			var gravityForce = m_SphereObject.GetGravityForce();
 			Vector3 extraGravityForce = gravityForce * (m_GravityMultiplier - 1);
-			m_Rigidbody.AddForce(extraGravityForce);
+			m_Rigidbody.AddForce(extraGravityForce, ForceMode.Acceleration);
 			float velocityUp = Vector3.Dot(m_Rigidbody.velocity, m_SphereObject.GetGravityUp());
 			m_GroundCheckDistance = velocityUp < 0 ? m_OrigGroundCheckDistance : 0.01f;
 		}

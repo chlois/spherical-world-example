@@ -15,7 +15,6 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
         private Transform m_Cam;     
         private Vector3 m_Move;
         private bool m_Jump;
-        private Pathfinder pathfinder;
         
         private void Start() {
             // get the transform of the main camera
@@ -27,24 +26,28 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
                     "Error: no main camera found. Third person character needs a Camera tagged \"MainCamera\", for camera-relative controls.", gameObject);
             }
             m_Character = GetComponent<SphereCharacter>();
-            pathfinder = GetComponent<Pathfinder>();
+        }
+
+        void OnDrawGizmos() {
+            if (m_Character && m_Character.path != null) {
+                foreach (var p in m_Character.path) {
+                    Gizmos.color = Color.black;
+                    Gizmos.DrawSphere(p, .1f);
+                }
+            }
         }
         
         void Update() {
             if (!m_Jump) {
                 m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
-            }
-
-            List<Vector3> testPath = null;
+            }      
             if (Input.GetMouseButtonDown(0)) {
                 var myMousePosition = Input.mousePosition;
-                testPath = pathfinder.FindPath(myMousePosition);
-            }
-            if (testPath != null) {
-                Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
-                Handles.color = Color.black;
-                for (int i = 0; i < testPath.Count; i++) {
-                    Handles.SphereHandleCap(0, testPath[i], Quaternion.identity, 2f, EventType.Repaint);
+                RaycastHit hit = new RaycastHit();
+                if (Physics.Raycast(Camera.main.ScreenPointToRay(myMousePosition).origin,
+                    Camera.main.ScreenPointToRay(myMousePosition).direction, out hit, 100,
+                    Physics.DefaultRaycastLayers)) {
+                    m_Character.SetTarget(hit.point);
                 }
             }
         }
@@ -54,6 +57,10 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
             float h = CrossPlatformInputManager.GetAxis("Horizontal");
             float v = CrossPlatformInputManager.GetAxis("Vertical");
             bool crouch = Input.GetKey(KeyCode.C);
+
+            if (h != 0 || v != 0) {
+                m_Character.ClearTarget();
+            }
 
             // calculate move direction to pass to character
             if (m_Cam != null) {
@@ -75,8 +82,10 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 #if !MOBILE_INPUT
 			// walk speed multiplier
 	        if (Input.GetKey(KeyCode.LeftShift)) m_Move *= 0.5f;
-#endif
-            m_Character.Move(m_Move, crouch, m_Jump);
+#endif 
+            if (m_Character.path == null) {
+                m_Character.Move(m_Move, crouch, m_Jump);
+            }
             m_Jump = false;
         }
     }

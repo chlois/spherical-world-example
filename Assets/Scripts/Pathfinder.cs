@@ -9,7 +9,6 @@ public class Pathfinder : MonoBehaviour {
     public LayerMask obstacleMask;
     public float nodeRadius = .5f;
     public bool showNodes;
-    public bool showPath;
     List<Vector3> path;
 
     Grid[] grids;
