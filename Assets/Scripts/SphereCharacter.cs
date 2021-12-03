@@ -75,7 +75,11 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 			}
 
 			// move along path
-			MoveAlongPath();
+			if (path != null)
+				MoveAlongPath();
+			else {
+				RandomMove();
+			}
 		}
 
 		void InitRagdoll() {
@@ -121,6 +125,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 			CheckGroundStatus();
 			m_TurnAmount = Mathf.Atan2(move.x, move.z);
 			m_ForwardAmount = move.z;
+
+			var currentPos = transform.position;
 			
 			ApplyExtraTurnRotation();
 
@@ -168,6 +174,11 @@ namespace UnityStandardAssets.Characters.ThirdPerson {
 			float localV = Vector3.Dot(moveDir, m_Forward);
 			float localH = Vector3.Dot(moveDir, m_Right);
 			Move(new Vector3(localH, 0, localV), false, false);
+		}
+
+		void RandomMove() {
+			var moveTarget = new Vector3(Random.Range(-100,100)/100f, Random.Range(-100,100)/100f, Random.Range(-100,100)/100f);
+			SetTarget(moveTarget.normalized * 5f);
 		}
 
 		void ScaleCapsuleForCrouching(bool crouch) {
